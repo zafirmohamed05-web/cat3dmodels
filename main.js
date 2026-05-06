@@ -5,22 +5,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const mindarThree = new window.MINDAR.IMAGE.MindARThree({
       container: document.body,
-      imageTargetSrc: "./targets.mind", // ✅ updated name
+      imageTargetSrc: "./targets.mind",
     });
 
     const { renderer, scene, camera } = mindarThree;
 
-    const geometry = new THREE.PlaneGeometry(1, 1);
-    const material = new THREE.MeshBasicMaterial({
-      color: 0x0000ff,
-      transparent: true,
-      opacity: 0.5,
-    });
+    // 💡 Light (model visible aaganum)
+    const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
+    scene.add(light);
 
-    const plane = new THREE.Mesh(geometry, material);
-
+    // 🎯 Anchor
     const anchor = mindarThree.addAnchor(0);
-    anchor.group.add(plane);
+
+    // 🐱 GLTF Loader
+    const loader = new THREE.GLTFLoader();
+
+    loader.load(
+      "./model.glb", // 🔥 un file name match aaganum
+
+      (gltf) => {
+        const model = gltf.scene;
+
+        // 🔧 Adjust size
+        model.scale.set(0.7, 0.7, 0.7);
+
+        // 🔧 Position
+        model.position.set(0, 0, 0);
+
+        // 🔧 Rotation (if needed)
+        model.rotation.x = -Math.PI / 2;
+
+        anchor.group.add(model);
+
+        console.log("MODEL LOADED ✅");
+      },
+
+      undefined,
+
+      (error) => {
+        console.error("ERROR ❌", error);
+      }
+    );
 
     await mindarThree.start();
 
